@@ -14,7 +14,6 @@ public class Event_couponVO {
 	private Timestamp start_date;
 	private Timestamp end_date;
 	private Integer event_coupon_status;
-	
 	public Integer getEvent_coupon_no() {
 		return event_coupon_no;
 	}
@@ -45,10 +44,10 @@ public class Event_couponVO {
 	public void setUsage_limit(Integer usage_limit) {
 		this.usage_limit = usage_limit;
 	}
-	public Integer getVarchar() {
+	public Integer getRemaining_times() {
 		return remaining_times;
 	}
-	public void setVarchar(Integer varchar) {
+	public void setRemaining_times(Integer remaining_times) {
 		this.remaining_times = remaining_times;
 	}
 	public Integer getMin_spend() {
@@ -81,6 +80,8 @@ public class Event_couponVO {
 	public void setEvent_coupon_status(Integer event_coupon_status) {
 		this.event_coupon_status = event_coupon_status;
 	}
+	
+	
 	
 	
 }
