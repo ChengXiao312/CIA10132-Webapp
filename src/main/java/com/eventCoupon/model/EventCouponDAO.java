@@ -3,11 +3,22 @@ package com.eventCoupon.model;
 import java.sql.*;
 import java.util.*;
 
-public class EventCouponJDBCDAO implements EventCouponInterface {
-	String driver = "com.mysql.cj.jdbc.Driver";
-	String url = "jdbc:mysql://localhost:3306/ezban?serverTimezone=Asia/Taipei";
-	String userid = "root";
-	String passwd = "fred890312";
+
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+
+public class EventCouponDAO implements EventCouponInterface {
+	private static DataSource ds = null;
+	static {
+		try {
+			Context ctx = new InitialContext();
+			ds = (DataSource) ctx.lookup("java:comp/env/jdbc/TestDB2");
+		} catch (NamingException e) {
+			e.printStackTrace();
+		}
+	}
 
 	private static final String INSERT_STMT = "INSERT INTO event_coupon (host_no,event_coupon_name, coupon_code, usage_limit, remaining_times, min_spend, event_coupon_discount, start_date, end_date, event_coupon_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	private static final String GET_ALL_STMT = "SELECT event_coupon_no, host_no,event_coupon_name, coupon_code, usage_limit, remaining_times, min_spend, event_coupon_discount, start_date, end_date, event_coupon_status FROM event_coupon order by event_coupon_no";
@@ -22,10 +33,8 @@ public class EventCouponJDBCDAO implements EventCouponInterface {
 
 		try {
 
-			Class.forName(driver);
-			con = DriverManager.getConnection(url, userid, passwd);
+			con = ds.getConnection();
 			pstmt = con.prepareStatement(INSERT_STMT);
-
 			pstmt.setInt(1, eventCouponVO.getHost_no());
 			pstmt.setString(2, eventCouponVO.getEvent_coupon_name());
 			pstmt.setString(3, eventCouponVO.getCoupon_code());
@@ -39,9 +48,6 @@ public class EventCouponJDBCDAO implements EventCouponInterface {
 
 			pstmt.executeUpdate();
 
-			// Handle any driver errors
-		} catch (ClassNotFoundException e) {
-			throw new RuntimeException("Couldn't load database driver. " + e.getMessage());
 			// Handle any SQL errors
 		} catch (SQLException se) {
 			throw new RuntimeException("A database error occured. " + se.getMessage());
@@ -67,16 +73,12 @@ public class EventCouponJDBCDAO implements EventCouponInterface {
 
 	@Override
 	public void update(EventCouponVO eventCouponVO) {
-
 		Connection con = null;
 		PreparedStatement pstmt = null;
 
 		try {
 
-			Class.forName(driver);
-			con = DriverManager.getConnection(url, userid, passwd);
-			pstmt = con.prepareStatement(UPDATE);
-
+			con = ds.getConnection();
 			pstmt.setInt(1, eventCouponVO.getHost_no());
 			pstmt.setString(2, eventCouponVO.getEvent_coupon_name());
 			pstmt.setString(3, eventCouponVO.getCoupon_code());
@@ -92,9 +94,6 @@ public class EventCouponJDBCDAO implements EventCouponInterface {
 
 			pstmt.executeUpdate();
 
-			// Handle any driver errors
-		} catch (ClassNotFoundException e) {
-			throw new RuntimeException("Couldn't load database driver. " + e.getMessage());
 			// Handle any SQL errors
 		} catch (SQLException se) {
 			throw new RuntimeException("A database error occured. " + se.getMessage());
@@ -127,8 +126,7 @@ public class EventCouponJDBCDAO implements EventCouponInterface {
 
 		try {
 
-			Class.forName(driver);
-			con = DriverManager.getConnection(url, userid, passwd);
+			con = ds.getConnection();
 			pstmt = con.prepareStatement(GET_ONE_STMT);
 
 			pstmt.setInt(1, event_coupon_no);
@@ -150,9 +148,6 @@ public class EventCouponJDBCDAO implements EventCouponInterface {
 				eventCouponVO.setEvent_coupon_status(rs.getInt("event_coupon_status"));
 
 			}
-			// Handle any driver errors
-		} catch (ClassNotFoundException e) {
-			throw new RuntimeException("Couldn't load database driver. " + e.getMessage());
 			// Handle any SQL errors
 		} catch (SQLException se) {
 			throw new RuntimeException("A database error occured. " + se.getMessage());
@@ -186,7 +181,6 @@ public class EventCouponJDBCDAO implements EventCouponInterface {
 
 	@Override
 	public List<EventCouponVO> getAll() {
-
 		List<EventCouponVO> list = new ArrayList<EventCouponVO>();
 		EventCouponVO eventCouponVO = null;
 
@@ -196,8 +190,7 @@ public class EventCouponJDBCDAO implements EventCouponInterface {
 
 		try {
 
-			Class.forName(driver);
-			con = DriverManager.getConnection(url, userid, passwd);
+			con = ds.getConnection();
 			pstmt = con.prepareStatement(GET_ALL_STMT);
 			rs = pstmt.executeQuery();
 
@@ -217,9 +210,6 @@ public class EventCouponJDBCDAO implements EventCouponInterface {
 				eventCouponVO.setEvent_coupon_status(rs.getInt("event_coupon_status"));
 				list.add(eventCouponVO);
 			}
-			// Handle any driver errors
-		} catch (ClassNotFoundException e) {
-			throw new RuntimeException("Couldn't load database driver. " + e.getMessage());
 			// Handle any SQL errors
 		} catch (SQLException se) {
 			throw new RuntimeException("A database error occured. " + se.getMessage());
@@ -249,68 +239,5 @@ public class EventCouponJDBCDAO implements EventCouponInterface {
 		}
 		return list;
 
-	}
-
-	public static void main(String[] args) {
-		EventCouponJDBCDAO dao = new EventCouponJDBCDAO();
-
-//		新增
-//		EventCouponVO eventCouponVO1 = new EventCouponVO();
-//		eventCouponVO1.setHost_no(11);
-//		eventCouponVO1.setEvent_coupon_name("EventA1");
-//		eventCouponVO1.setCoupon_code("CODEA1");
-//		eventCouponVO1.setUsage_limit(100);
-//		eventCouponVO1.setRemaining_times(50);
-//		eventCouponVO1.setMin_spend(1000);
-//		eventCouponVO1.setEvent_coupon_discount(100);
-//		eventCouponVO1.setStart_date(java.sql.Timestamp.valueOf("2024-05-01"));
-//		eventCouponVO1.setEnd_date(java.sql.Timestamp.valueOf("2024-05-11"));
-//		eventCouponVO1.setEvent_coupon_status(1);
-//		dao.insert(eventCouponVO1);
-
-//		修改
-//		EventCouponVO eventCouponVO2 = new EventCouponVO();
-//		eventCouponVO2.setHost_no(11);
-//		eventCouponVO2.setEvent_coupon_name("EventA1");
-//		eventCouponVO2.setCoupon_code("CODEA1");
-//		eventCouponVO2.setUsage_limit(100);
-//		eventCouponVO2.setRemaining_times(50);
-//		eventCouponVO2.setMin_spend(1000);
-//		eventCouponVO2.setEvent_coupon_discount(100);
-//		eventCouponVO2.setStart_date(java.sql.Timestamp.valueOf("2024-05-01"));
-//		eventCouponVO2.setEnd_date(java.sql.Timestamp.valueOf("2024-05-11"));
-//		eventCouponVO2.setEvent_coupon_status(1);
-//		dao.update(eventCouponVO2);
-
-//		查詢單一
-//		EventCouponVO eventCouponVO3 = dao.findByPrimaryKey(5001);
-//
-//		System.out.print(eventCouponVO3.getHost_no() + ",");
-//		System.out.print(eventCouponVO3.getEvent_coupon_name() + ",");
-//		System.out.print(eventCouponVO3.getCoupon_code() + ",");
-//		System.out.print(eventCouponVO3.getUsage_limit() + ",");
-//		System.out.print(eventCouponVO3.getRemaining_times() + ",");
-//		System.out.print(eventCouponVO3.getMin_spend() + ",");
-//		System.out.print(eventCouponVO3.getEvent_coupon_discount() + ",");
-//		System.out.print(eventCouponVO3.getStart_date() + ",");
-//		System.out.print(eventCouponVO3.getEnd_date() + ",");
-//		System.out.print(eventCouponVO3.getEvent_coupon_status());
-//		System.out.println("---------------------");
-
-//		查詢全部
-		List<EventCouponVO> list = dao.getAll();
-		for (EventCouponVO aEvent_coupon : list) {
-			System.out.print(aEvent_coupon.getHost_no() + ",");
-			System.out.print(aEvent_coupon.getEvent_coupon_name() + ",");
-			System.out.print(aEvent_coupon.getCoupon_code() + ",");
-			System.out.print(aEvent_coupon.getUsage_limit() + ",");
-			System.out.print(aEvent_coupon.getRemaining_times() + ",");
-			System.out.print(aEvent_coupon.getMin_spend() + ",");
-			System.out.print(aEvent_coupon.getEvent_coupon_discount() + ",");
-			System.out.print(aEvent_coupon.getStart_date() + ",");
-			System.out.print(aEvent_coupon.getEnd_date() + ",");
-			System.out.print(aEvent_coupon.getEvent_coupon_status());
-			System.out.println();
-		}
 	}
 }

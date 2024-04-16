@@ -81,6 +81,7 @@ public class EventCouponVO {
 
 	public Timestamp getStart_date() {
 		return start_date;
+		
 	}
 
 	public void setStart_date(Timestamp start_date) {
